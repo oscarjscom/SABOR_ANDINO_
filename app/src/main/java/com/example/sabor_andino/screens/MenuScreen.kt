@@ -1,14 +1,23 @@
 package com.example.sabor_andino.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sabor_andino.navigation.Screen
@@ -18,13 +27,14 @@ data class Plato(
     val nombre: String,
     val descripcion: String,
     val precio: Double,
-    val categoria: String
+    val categoria: String,
+    val esMasVendido: Boolean = false
 )
 
 val platos = listOf(
-    Plato(1, "Ceviche Clásico", "Fresco ceviche de pescado con limón y ají.", 25.0, "Entradas"),
+    Plato(1, "Ceviche Clásico", "Fresco ceviche de pescado con limón y ají.", 25.0, "Entradas", esMasVendido = true),
     Plato(2, "Causa Limeña", "Capas de papa amarilla con pollo y mayonesa.", 18.0, "Entradas"),
-    Plato(3, "Lomo Saltado", "Clásico lomo con verduras y papas fritas.", 35.0, "Platos de Fondo"),
+    Plato(3, "Lomo Saltado", "Clásico lomo con verduras y papas fritas.", 35.0, "Platos de Fondo", esMasVendido = true),
     Plato(4, "Ají de Gallina", "Pollo en crema de ají amarillo con arroz.", 30.0, "Platos de Fondo"),
     Plato(5, "Mazamorra Morada", "Postre tradicional de maíz morado.", 12.0, "Postres"),
     Plato(6, "Chicha Morada", "Bebida refrescante de maíz morado.", 8.0, "Bebidas")
@@ -58,10 +68,20 @@ fun MenuScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(categorias) { cat ->
+                    val icon = when (cat) {
+                        "Entradas" -> Icons.Default.Restaurant
+                        "Platos de Fondo" -> Icons.Default.RestaurantMenu
+                        "Postres" -> Icons.Default.Fastfood
+                        "Bebidas" -> Icons.Default.LocalBar
+                        else -> null
+                    }
                     FilterChip(
                         selected = categoriaSeleccionada == cat,
                         onClick = { categoriaSeleccionada = cat },
-                        label = { Text(cat) }
+                        label = { Text(cat) },
+                        leadingIcon = icon?.let {
+                            { Icon(it, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                        }
                     )
                 }
             }
@@ -69,23 +89,94 @@ fun MenuScreen(navController: NavController) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(platosFiltrados) { plato ->
-                    Card(
+                    ElevatedCard(
                         onClick = {
                             navController.navigate(Screen.Detail.createRoute(plato.id))
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.large,
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(plato.nombre, style = MaterialTheme.typography.titleMedium)
-                            Text(plato.descripcion, style = MaterialTheme.typography.bodySmall)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("S/ ${plato.precio}", style = MaterialTheme.typography.bodyLarge)
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .height(IntrinsicSize.Min)
+                            ) {
+                                // Imagen del plato
+                                Box(
+                                    modifier = Modifier
+                                        .size(110.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                            shape = MaterialTheme.shapes.medium
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Restaurant,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
+                                    verticalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = plato.nombre,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = plato.descripcion,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 2,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Text(
+                                        text = "S/ ${"%.2f".format(plato.precio)}",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+
+                            // Badge "Más vendido"
+                            if (plato.esMasVendido) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    shape = RoundedCornerShape(bottomStart = 16.dp, topEnd = 16.dp),
+                                    modifier = Modifier.align(Alignment.TopEnd)
+                                ) {
+                                    Text(
+                                        text = "⭐ Más vendido",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSecondary,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+                
+                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }
