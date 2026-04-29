@@ -2,6 +2,7 @@ package com.example.sabor_andino.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -16,10 +17,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.sabor_andino.navigation.Screen
 
 data class Plato(
@@ -28,16 +31,17 @@ data class Plato(
     val descripcion: String,
     val precio: Double,
     val categoria: String,
+    val imageUrl: String,
     val esMasVendido: Boolean = false
 )
 
 val platos = listOf(
-    Plato(1, "Ceviche Clásico", "Fresco ceviche de pescado con limón y ají.", 25.0, "Entradas", esMasVendido = true),
-    Plato(2, "Causa Limeña", "Capas de papa amarilla con pollo y mayonesa.", 18.0, "Entradas"),
-    Plato(3, "Lomo Saltado", "Clásico lomo con verduras y papas fritas.", 35.0, "Platos de Fondo", esMasVendido = true),
-    Plato(4, "Ají de Gallina", "Pollo en crema de ají amarillo con arroz.", 30.0, "Platos de Fondo"),
-    Plato(5, "Mazamorra Morada", "Postre tradicional de maíz morado.", 12.0, "Postres"),
-    Plato(6, "Chicha Morada", "Bebida refrescante de maíz morado.", 8.0, "Bebidas")
+    Plato(1, "Ceviche Clásico", "Fresco ceviche de pescado con limón y ají.", 25.0, "Entradas", "https://img.freepik.com/foto-gratis/primer-plano-ceviche-pescado-peruano-servido-bol-blanco_181624-38615.jpg", esMasVendido = true),
+    Plato(2, "Causa Limeña", "Capas de papa amarilla con pollo y mayonesa.", 18.0, "Entradas", "https://img.freepik.com/foto-gratis/causa-limena-pollo-comida-peruana_127032-1981.jpg"),
+    Plato(3, "Lomo Saltado", "Clásico lomo con verduras y papas fritas.", 35.0, "Platos de Fondo", "https://img.freepik.com/foto-gratis/lomo-saltado-tradicional-comida-peruana_127032-2051.jpg", esMasVendido = true),
+    Plato(4, "Ají de Gallina", "Pollo en crema de ají amarillo con arroz.", 30.0, "Platos de Fondo", "https://img.freepik.com/foto-gratis/aji-gallina-comida-peruana_127032-2015.jpg"),
+    Plato(5, "Mazamorra Morada", "Postre tradicional de maíz morado.", 12.0, "Postres", "https://img.freepik.com/foto-gratis/mazamorra-morada-postre-peruano-tradicional_127032-2105.jpg"),
+    Plato(6, "Chicha Morada", "Bebida refrescante de maíz morado.", 8.0, "Bebidas", "https://img.freepik.com/foto-gratis/chicha-morada-bebida-tradicional-peruana_127032-2150.jpg")
 )
 
 val categorias = listOf("Todos", "Entradas", "Platos de Fondo", "Postres", "Bebidas")
@@ -116,14 +120,17 @@ fun MenuScreen(navController: NavController) {
                                         .background(
                                             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                                             shape = MaterialTheme.shapes.medium
-                                        ),
+                                        )
+                                        .clip(MaterialTheme.shapes.medium),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        Icons.Default.Restaurant,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(32.dp),
-                                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                                    AsyncImage(
+                                        model = plato.imageUrl,
+                                        contentDescription = plato.nombre,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop,
+                                        placeholder = painterResource(id = android.R.drawable.ic_menu_gallery),
+                                        error = painterResource(id = android.R.drawable.ic_menu_report_image)
                                     )
                                 }
 

@@ -14,9 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,19 +60,21 @@ fun DetailScreen(navController: NavController, platoId: Int) {
                     .verticalScroll(rememberScrollState())
                     .padding(bottom = padding.calculateBottomPadding())
             ) {
-                // Imagen Hero (Placeholder)
+                // Imagen Hero
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp)
+                        .height(300.dp)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Restaurant,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                    AsyncImage(
+                        model = plato.imageUrl,
+                        contentDescription = plato.nombre,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(id = android.R.drawable.ic_menu_gallery),
+                        error = painterResource(id = android.R.drawable.ic_menu_report_image)
                     )
                 }
 

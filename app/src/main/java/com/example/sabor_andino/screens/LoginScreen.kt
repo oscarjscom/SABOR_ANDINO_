@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -16,7 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -58,20 +60,26 @@ fun LoginScreen(navController: NavController) {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Surface(
-                    modifier = Modifier.size(100.dp),
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(8.dp),
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White.copy(alpha = 0.2f)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Restaurant,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = Color.White
+                        AsyncImage(
+                            model = "https://img.freepik.com/vector-gratis/logotipo-restaurante-retro_23-2148474404.jpg", // Logo genérico representativo
+                            contentDescription = "Logo Sabor Andino",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit,
+                            placeholder = painterResource(id = android.R.drawable.ic_menu_gallery),
+                            error = painterResource(id = android.R.drawable.ic_menu_report_image)
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = "Sabor Andino",
                     style = MaterialTheme.typography.headlineLarge,
