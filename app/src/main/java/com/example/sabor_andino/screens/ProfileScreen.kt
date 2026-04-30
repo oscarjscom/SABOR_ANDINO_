@@ -1,5 +1,6 @@
 package com.example.sabor_andino.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,7 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,9 +23,14 @@ import com.example.sabor_andino.navigation.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val email = AppState.correoUsuario.ifEmpty { "invitado@ejemplo.com" }
-    val initial = email.take(1).uppercase()
-    val name = email.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "Usuario"
+    var nombre by remember { mutableStateOf("Oscar") }
+    var correo by remember { mutableStateOf("oscar@123.com") }
+    var direccion by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+    var modoEdicion by remember { mutableStateOf(false) }
+    var mensajeExito by remember { mutableStateOf(false) }
+
+    val initial = if (nombre.isNotEmpty()) nombre.take(1).uppercase() else "?"
 
     Scaffold(
         topBar = {
@@ -65,17 +71,55 @@ fun ProfileScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = name,
+                text = nombre,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = email,
+                text = correo,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Botón Editar / Guardar
+            if (!modoEdicion) {
+                OutlinedButton(
+                    onClick = { 
+                        modoEdicion = true 
+                        mensajeExito = false
+                    },
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Editar Perfil")
+                }
+            } else {
+                Button(
+                    onClick = { 
+                        modoEdicion = false 
+                        mensajeExito = true
+                    },
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Guardar Cambios")
+                }
+            }
+
+            AnimatedVisibility(visible = mensajeExito) {
+                Text(
+                    text = "✅ Perfil actualizado correctamente",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             // 2. Sección de Datos del Usuario en una Card
             SectionTitle("Información Personal")
@@ -83,10 +127,48 @@ fun ProfileScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    ProfileInfoRow(Icons.Default.Person, "Nombre", name)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                    ProfileInfoRow(Icons.Default.Email, "Correo", email)
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (!modoEdicion) {
+                        ProfileInfoRow(Icons.Default.Person, "Nombre", nombre)
+                        HorizontalDivider(thickness = 0.5.dp)
+                        ProfileInfoRow(Icons.Default.Email, "Correo", correo)
+                        HorizontalDivider(thickness = 0.5.dp)
+                        ProfileInfoRow(Icons.Default.LocationOn, "Dirección", direccion.ifEmpty { "No especificada" })
+                        HorizontalDivider(thickness = 0.5.dp)
+                        ProfileInfoRow(Icons.Default.Phone, "Teléfono", telefono.ifEmpty { "No especificado" })
+                    } else {
+                        OutlinedTextField(
+                            value = nombre,
+                            onValueChange = { nombre = it },
+                            label = { Text("Nombre") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = correo,
+                            onValueChange = { correo = it },
+                            label = { Text("Correo") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = direccion,
+                            onValueChange = { direccion = it },
+                            label = { Text("Dirección") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = telefono,
+                            onValueChange = { telefono = it },
+                            label = { Text("Teléfono") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                    }
                 }
             }
 
@@ -102,10 +184,6 @@ fun ProfileScreen(navController: NavController) {
                     ProfileOptionRow(Icons.Default.History, "Mis pedidos") {
                         navController.navigate(Screen.Pedido.route)
                     }
-                    HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
-                    ProfileOptionRow(Icons.Default.Notifications, "Notificaciones") { }
-                    HorizontalDivider(thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
-                    ProfileOptionRow(Icons.Default.Security, "Privacidad") { }
                 }
             }
 

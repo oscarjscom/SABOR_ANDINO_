@@ -1,5 +1,6 @@
 package com.example.sabor_andino.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -182,6 +184,8 @@ fun DetailScreen(navController: NavController, platoId: Int) {
 
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    val estaEnCarrito = AppState.carrito.any { it.plato.id == platoId }
+
                     Button(
                         onClick = {
                             AppState.agregarAlCarrito(plato, cantidad)
@@ -193,6 +197,31 @@ fun DetailScreen(navController: NavController, platoId: Int) {
                         shape = MaterialTheme.shapes.large
                     ) {
                         Text("Agregar al pedido", style = MaterialTheme.typography.titleMedium)
+                    }
+
+                    if (estaEnCarrito) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                AppState.eliminarDelCarrito(platoId)
+                                navController.popBackStack()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = MaterialTheme.shapes.large,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Eliminar del pedido", style = MaterialTheme.typography.titleMedium)
+                        }
                     }
                 }
             }
