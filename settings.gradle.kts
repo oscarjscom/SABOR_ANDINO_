@@ -22,5 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SaborAndino"
+rootProject.name = "SABOR_ANDINO"
 include(":app")
+ 
